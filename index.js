@@ -50,6 +50,51 @@ app.get('/admin', (req, res) => {
   res.render('admin/home')
 })
 
+//categorias
+app.get('/admin/categorias', async(req, res) => {
+  const db = await dbConnection
+  const categorias = await db.all('select * from categorias;')
+  res.render('admin/categorias',{
+    categorias
+  })
+})
+
+app.get('/admin/categorias/nova', async (req, res) => {
+  const db = await dbConnection
+  const categorias = await db.all('select * from categorias;')
+  res.render('admin/nova-categoria',{categorias})
+})
+
+app.post('/admin/categorias/nova', async(req, res) => {
+  const { categoria } = req.body
+  const db = await dbConnection
+  await db.run(`insert into categorias(categoria) values('${categoria}')`)
+  res.redirect('/admin/categorias')
+})
+
+app.get('/admin/categorias/delete/:id', async(req, res) => {
+  const db = await dbConnection
+  await db.run('delete from categorias where id =' + req.params.id)
+  res.redirect('/admin/categorias')
+})
+
+app.get('/admin/categorias/editar/:id', async (req, res) => {
+  const db = await dbConnection
+  const categorias = await db.all('select * from categorias;')
+  const categoria = await db.get('select * from categorias where id = '+ req.params.id )
+  res.render('admin/editar-categoria',{categorias, categoria})
+})
+
+app.post('/admin/categorias/editar/:id', async(req, res) => {
+  const { categoria } = req.body
+  const {id} = req.params
+  const db = await dbConnection
+  await db.run(`update categorias set categoria = '${categoria}' where id = ${id}`)
+  res.redirect('/admin/categorias')
+})
+
+// Vagas
+
 app.get('/admin/vagas', async(req, res) => {
   const db = await dbConnection
   const vagas = await db.all('select * from vagas;')
@@ -100,8 +145,8 @@ const init = async() => {
   await db.run('create table if not exists vagas(id INTEGER PRIMARY KEY, categoria INTEGER, titulo TEXT, descricao TEXT);')
     //const categoria = 'Marketing teams'
     //await db.run(`insert into categorias(categoria) values('${categoria}')`)
-    const vaga = 'Social Media (San Francisco)'
-    const descricao = 'Vaga para Marketing em San Francisco'
+    //const vaga = 'Social Media (San Francisco)'
+    //const descricao = 'Vaga para Marketing em San Francisco'
     //await db.run(`insert into vagas(categoria, titulo, descricao) values(2,'${vaga}', '${descricao}')`)
   }
 
